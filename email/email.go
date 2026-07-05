@@ -105,7 +105,8 @@ func (c *Client) SendLoginNotificationEmail(to, frontendURL string) error {
 // Lead emails
 // ---------------------------------------------------------------------------
 
-func (c *Client) SendNewLeadNotification(to string, data LeadData) error {
+func (c *Client) SendNewLeadNotification(data LeadData) error {
+	to := data.Email
 	pkg := "—"
 	if data.Package != nil {
 		pkg = html.EscapeString(*data.Package)
