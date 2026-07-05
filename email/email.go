@@ -105,6 +105,41 @@ func (c *Client) SendLoginNotificationEmail(to, frontendURL string) error {
 // Lead emails
 // ---------------------------------------------------------------------------
 
+func (c *Client) SendLeadAccepted(data LeadData, frontendURL string) error {
+	link := frontendURL + "/my-projects"
+	pkgRow := ""
+	if data.Package != nil {
+		pkgRow = fmt.Sprintf(
+			`<p style="margin:0 0 8px;font-size:13px;color:#A1A1A1;">Package: <span style="color:#00F0FF;">%s</span></p>`,
+			html.EscapeString(*data.Package),
+		)
+	}
+
+	body := fmt.Sprintf(`
+	<h2 style="margin:0 0 8px;font-size:24px;font-weight:900;letter-spacing:-0.02em;color:#ffffff;">Project Accepted!</h2>
+	<p style="margin:0 0 24px;color:#A1A1A1;font-size:14px;line-height:1.6;">
+		Great news, %s — we've accepted your project for <strong style="color:#ffffff;">%s</strong> and we're getting started.<br>
+		Track every milestone in real time from your project dashboard.
+	</p>
+	%s
+	<table cellpadding="0" cellspacing="0" style="margin:32px 0;">
+		<tr>
+			<td style="background:#00F0FF;border-radius:6px;">
+				<a href="%s" style="display:inline-block;padding:14px 28px;font-size:13px;font-weight:900;letter-spacing:0.12em;text-transform:uppercase;color:#050505;text-decoration:none;">
+					Track My Project
+				</a>
+			</td>
+		</tr>
+	</table>
+	<p style="margin:0;font-size:12px;color:#555555;line-height:1.6;">Have questions? Just reply to this email — we read every one.</p>`,
+		html.EscapeString(data.Name),
+		html.EscapeString(data.Business),
+		pkgRow,
+		link,
+	)
+	return c.send(data.Email, "Your project has been accepted — consultprompts.com", body)
+}
+
 func (c *Client) SendNewLeadNotification(data LeadData) error {
 	to := data.Email
 	pkg := "—"
