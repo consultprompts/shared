@@ -16,12 +16,14 @@ replace github.com/consultprompts/shared/email => ../shared/email
 
 ## Configuration
 
-Two environment variables are required. If either is missing, `NewClient()` returns `nil` and callers should treat email as disabled.
+`RESEND_API_KEY` and `RESEND_FROM` are required. If either is missing, `NewClient()` returns `nil` and callers should treat email as disabled.
 
 | Variable         | Description                          |
 |------------------|--------------------------------------|
 | `RESEND_API_KEY` | API key from your Resend dashboard   |
 | `RESEND_FROM`    | Sender address (e.g. `no-reply@consultprompts.com`) |
+| `LOGO_URL`       | Optional. Logo image shown in the email header; falls back to a text wordmark when unset |
+| `FRONTEND_URL`   | Used by `SendNewLeadNotification` to link to `/admin-console` |
 
 ## Usage
 
@@ -36,9 +38,10 @@ client.SendVerificationEmail(to, token, frontendURL)
 client.SendPasswordResetEmail(to, token, frontendURL)
 client.SendLoginNotificationEmail(to, frontendURL)
 
-// Lead emails
-client.SendNewLeadNotification(notifyTo, email.LeadData{...})
+// Lead emails — recipient comes from LeadData.Email, not a separate param
+client.SendNewLeadNotification(email.LeadData{...})
 client.SendLeadConfirmation(email.LeadData{...})
+client.SendLeadAccepted(email.LeadData{...}, frontendURL)
 ```
 
 ### LeadData fields
@@ -61,5 +64,10 @@ type LeadData struct {
 | `SendVerificationEmail`     | New user       | Email verification link (expires 24h)            |
 | `SendPasswordResetEmail`    | User           | Password reset link (expires 1h)                 |
 | `SendLoginNotificationEmail`| User           | Alert on new login                               |
-| `SendNewLeadNotification`   | Internal (ops) | New mockup request details                       |
+| `SendNewLeadNotification`   | Lead (`data.Email`) | New mockup request details, links to `/admin-console` |
 | `SendLeadConfirmation`      | Lead           | Confirmation to the person who submitted the form|
+| `SendLeadAccepted`          | Lead           | Notifies the client their project was accepted, links to `/my-projects` |
+
+Everything past mockup delivery — mockup-ready, revision requests, payment
+requests/receipts, and launch — is templated directly in agency-service's own
+`internal/email/email.go`, not in this shared module.

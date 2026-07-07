@@ -8,6 +8,11 @@ Shared Go modules for the consultprompts platform. Each subdirectory is an indep
 |--------|------|-------------|
 | [email](./email) | `github.com/consultprompts/shared/email` | Transactional email via Resend |
 
+## Assets
+
+`assets/logo.png` — the logo referenced by `LOGO_URL` in email templates
+(`shared/email`'s `compose()` header). Not a Go module; just a shared static file.
+
 ## Using a module
 
 Add the dependency to your service's `go.mod`:
